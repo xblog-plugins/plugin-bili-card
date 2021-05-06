@@ -2,32 +2,61 @@
 const widget =xBlog.widget
 const file =xBlog.static
 const database =xBlog.database
+const cron =xBlog.cron
+const tools =xBlog.tools
+const router =xBlog.router
 
 // 一些字段
-const dbUser = ""
+// B站uid
+const keyUID = 'bili_uid'
+// B站cookie
+const keyCookie = 'bili_cookie'
+// B站个人信息key值
+const keyBiliPerson = 'side_bili_card_person_info'
+// api地址
+const keyServer = 'site_api_server'
+// B站认证信息
+const keyBiliAuth = 'bili_show'
 
 // 注册静态文件
 file.staticFile("icon/icons.png")
 file.staticFile("icon/level.png")
 file.staticFile("icon/user-auth.png")
 
+// 注册一个定时任务，每20分钟更新一下B站信息
+cron.start('0 0/20 * * * ? *',function (){
+    let uid = tools.getSetting(keyUID)
+    // uid不为空才更新
+    if (uid!=="" && uid!=null){
+        // 定时把B站个人信息更新到数据库中
+        tools.setKey(keyBiliPerson,tools.getBiliPersonInfo(tools.getSetting(keyUID),tools.getSetting(keyCookie)))
+    }
+})
+
 // 添加卡片
 widget.addSide(true,"","index.html",function () {
-    // 初始化数据库链接
-    let db = database.newDb()
+    // 获取个人信息
+    let info = tools.getKey(keyBiliPerson)
     return {
-        uid: '343147393',
-        nickname: '小游',
-        sign: '二次元技术宅',
-        avatar: '//i0.hdslb.com/bfs/face/a44e34ef9a2fa3415ceb6ce25f29d1ddf9294518.jpg',
-        hang: '//i1.hdslb.com/bfs/garb/item/f8498be6ba4e87e7469943abafa27fff9975c658.png',
-        level: 5,
-        sex: '男',
-        isVip: 1,
-        auth: 'bilibili个人认证:一个永远都火不了的Up主',
-        fans: 50,
-        watch: 100,
-        view: 10,
-        server: 'http://127.0.0.1:2333/static/sideBiliCard/icon'
+        uid: info.uid,
+        nickname: info.nickname,
+        sign: info.sign,
+        avatar: info.avatar,
+        hang: info.hang,
+        level: info.level,
+        sex: info.sex,
+        isVip: info.isvip,
+        auth: tools.getSetting(keyBiliAuth),
+        fans: info.fans,
+        watch: info.watch,
+        view: info.view,
+        server: tools.getSetting(keyServer)
     }
 },true)
+
+// 添加B站卡片设置
+widget.addSetting("B站个人信息卡片",1,tools.getAdminPluginSetting([
+    {title:"B站uid",type: "input",key: keyUID},
+    {title:"个人认证",type: "input",key: keyBiliAuth},
+    {title:"B站cookie",type: "text",key: keyCookie}
+]))
