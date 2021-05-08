@@ -34,7 +34,7 @@ cron.start('0 0/20 * * * ? *',function (){
 })
 
 // 添加卡片
-widget.addSide(true,"","index.html",function () {
+widget.addSide("","index.html",function () {
     // 获取个人信息
     let info = tools.getKey(keyBiliPerson)
     return {
