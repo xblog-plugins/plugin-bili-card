@@ -13,15 +13,8 @@ const keyUID = 'bili_uid'
 const keyCookie = 'bili_cookie'
 // B站个人信息key值
 const keyBiliPerson = 'side_bili_card_person_info'
-// api地址
-const keyServer = 'site_api_server'
 // B站认证信息
 const keyBiliAuth = 'bili_show'
-
-// 注册静态文件
-file.staticFile("icon/icons.png")
-file.staticFile("icon/level.png")
-file.staticFile("icon/user-auth.png")
 
 // 注册一个定时任务，每20分钟更新一下B站信息
 cron.start('0 0/20 * * * ? *',function (){
@@ -50,7 +43,7 @@ widget.addSide("","index.html",function () {
         fans: info.fans,
         watch: info.watch,
         view: info.view,
-        server: tools.getSetting(keyServer)
+        server: "/plugins/static/bili-card"
     }
 },true)
 
