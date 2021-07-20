@@ -20,7 +20,7 @@ const keyBiliAuth = 'bili_show'
 cron.start('0 0/20 * * * ? *',function (){
     let uid = tools.getSetting(keyUID)
     // uid不为空才更新
-    if (uid!=="" && uid!=null){
+    if (uid){
         // 定时把B站个人信息更新到数据库中
         tools.setKey(keyBiliPerson,tools.getBiliPersonInfo(tools.getSetting(keyUID),tools.getSetting(keyCookie)))
     }
@@ -30,6 +30,10 @@ cron.start('0 0/20 * * * ? *',function (){
 widget.addSide("","index.html",function () {
     // 获取个人信息
     let info = tools.getKey(keyBiliPerson)
+    if (!info){
+        tools.setKey(keyBiliPerson,tools.getBiliPersonInfo(tools.getSetting(keyUID),tools.getSetting(keyCookie)))
+        info = tools.getKey(keyBiliPerson)
+    }
     return {
         uid: info.uid,
         nickname: info.nickname,
@@ -48,8 +52,8 @@ widget.addSide("","index.html",function () {
 },true)
 
 // 添加B站卡片设置
-widget.addSetting("B站个人信息卡片",1,tools.getAdminPluginSetting([
+widget.addSetting("B站个人信息卡片",1,[
     {title:"B站uid",type: "input",key: keyUID},
     {title:"个人认证",type: "input",key: keyBiliAuth},
     {title:"B站cookie",type: "text",key: keyCookie}
-]))
+])
